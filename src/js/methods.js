@@ -433,6 +433,11 @@ export default {
       data.scaleY = imageData.scaleY || 1;
     }
 
+    data.panels = this.panels;
+    data.panelSpacing = this.panelSpacing;
+    data.border = this.border;
+    data.borderColor = this.borderColor;
+
     return data;
   },
 
@@ -490,6 +495,15 @@ export default {
       }
 
       this.setCropBoxData(cropBoxData);
+
+      if (data.panels) {
+        this.panels = data.panels;
+        this.panelSpacing = data.panelSpacing;
+        this.border = data.border;
+        this.borderColor = data.borderColor;
+
+        this.renderPanels();
+      }
     }
 
     return this;
@@ -830,5 +844,45 @@ export default {
     }
 
     return this;
+  },
+
+  /**
+   * Change the number of panels
+   *
+   * @param {array<int>} panels
+   * @param {array<int>} spacing
+   */
+  setPanels(panels, spacing) {
+    this.panels = panels;
+
+    if (typeof spacing !== 'undefined') {
+      this.panelSpacing = spacing;
+    }
+
+    this.renderPanels();
+  },
+
+  /**
+   * Change the spacing between the panels
+   *
+   * @param {array<int>} spacing
+   */
+  setPanelSpacing(spacing) {
+    this.panelSpacing = spacing;
+    this.renderPanels();
+  },
+
+  /**
+   * @param {int} width
+   * @param {string} color
+   */
+  setBorder(width, color) {
+    this.border = width;
+
+    if (typeof color !== 'undefined') {
+      this.borderColor = color;
+    }
+
+    this.renderPanels();
   },
 };

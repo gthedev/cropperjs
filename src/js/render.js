@@ -29,6 +29,8 @@ export default {
     if (this.cropped) {
       this.renderCropBox();
     }
+
+    this.renderPanels();
   },
 
   initContainer() {
@@ -489,6 +491,40 @@ export default {
 
     if (!this.disabled) {
       this.output();
+    }
+  },
+
+  renderPanels() {
+    const {
+      panels, panelSpacing, panelContainer, border, borderColor,
+    } = this;
+
+    panelContainer.innerHTML = '';
+
+    const panelsWidth = panels.reduce((a, b) => a + b, 0);
+    const spacersWidth = panelSpacing.reduce((a, b) => a + b, 0);
+    const totalWidth = panelsWidth + spacersWidth;
+
+    for (let i = 0; i < panels.length; i += 1) {
+      const panelWidth = (panels[i] / totalWidth) * 100;
+      const panel = document.createElement('SPAN');
+      panel.className = 'cropper-panel';
+      panel.style.width = `${panelWidth}%`;
+
+      if (border > 0) {
+        const borderWidth = (border / totalWidth) * 100;
+        panel.style.border = `${borderWidth}px solid ${borderColor}`;
+      }
+
+      panelContainer.appendChild(panel);
+
+      if (i < (panels.length - 1)) {
+        const spaceWidth = ((panelSpacing[i] || 0) / totalWidth) * 100;
+        const spacer = document.createElement('SPAN');
+        spacer.className = 'cropper-panel-spacer';
+        spacer.style.width = `${spaceWidth}%`;
+        panelContainer.appendChild(spacer);
+      }
     }
   },
 

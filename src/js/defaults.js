@@ -39,7 +39,7 @@ export default {
   modal: true,
 
   // Show the dashed lines for guiding
-  guides: true,
+  guides: false,
 
   // Show the center indicator for guiding
   center: true,

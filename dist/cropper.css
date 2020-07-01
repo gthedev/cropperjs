@@ -5,9 +5,8 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2020-05-23T05:22:57.283Z
+ * Date: 2020-07-01T18:26:56.475Z
  */
-
 .cropper-container {
   direction: ltr;
   font-size: 0;
@@ -62,10 +61,35 @@
 .cropper-view-box {
   display: block;
   height: 100%;
-  outline: 1px solid #39f;
-  outline-color: rgba(51, 153, 255, 0.75);
   overflow: hidden;
   width: 100%;
+}
+
+.cropper-panels {
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+.cropper-panel {
+  display: block;
+  float: left;
+  height: 100%;
+  outline: 1px solid #39f;
+  width: 30%;
+}
+
+.cropper-panel-spacer {
+  background: rgba(0, 0, 0, 0.5);
+  display: block;
+  float: left;
+  height: 100%;
+  width: 5%;
 }
 
 .cropper-dashed {
@@ -142,7 +166,7 @@
 }
 
 .cropper-line {
-  background-color: #39f;
+  background-color: #f00;
 }
 
 .cropper-line.line-e {
@@ -274,7 +298,7 @@
 }
 
 .cropper-bg {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC');
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC");
 }
 
 .cropper-hide {

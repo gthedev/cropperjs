@@ -5,7 +5,7 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2020-05-23T05:23:00.081Z
+ * Date: 2020-07-01T18:27:00.290Z
  */
 
 'use strict';
@@ -186,6 +186,10 @@ var REGEXP_ACTIONS = /^e|w|s|n|se|sw|ne|nw|all|crop|move|zoom$/;
 var REGEXP_DATA_URL = /^data:/;
 var REGEXP_DATA_URL_JPEG = /^data:image\/jpeg;base64,/;
 var REGEXP_TAG_NAME = /^img|canvas$/i; // Misc
+// Inspired by the default width and height of a canvas element.
+
+var MIN_CONTAINER_WIDTH = 200;
+var MIN_CONTAINER_HEIGHT = 100;
 
 var DEFAULTS = {
   // Define the view mode of the cropper
@@ -213,7 +217,7 @@ var DEFAULTS = {
   // Show the black modal
   modal: true,
   // Show the dashed lines for guiding
-  guides: true,
+  guides: false,
   // Show the center indicator for guiding
   center: true,
   // Show the white modal to highlight the crop box
@@ -249,8 +253,8 @@ var DEFAULTS = {
   minCanvasHeight: 0,
   minCropBoxWidth: 0,
   minCropBoxHeight: 0,
-  minContainerWidth: 200,
-  minContainerHeight: 100,
+  minContainerWidth: MIN_CONTAINER_WIDTH,
+  minContainerHeight: MIN_CONTAINER_HEIGHT,
   // Shortcuts of events
   ready: null,
   cropstart: null,
@@ -260,7 +264,7 @@ var DEFAULTS = {
   zoom: null
 };
 
-var TEMPLATE = '<div class="cropper-container" touch-action="none">' + '<div class="cropper-wrap-box">' + '<div class="cropper-canvas"></div>' + '</div>' + '<div class="cropper-drag-box"></div>' + '<div class="cropper-crop-box">' + '<span class="cropper-view-box"></span>' + '<span class="cropper-dashed dashed-h"></span>' + '<span class="cropper-dashed dashed-v"></span>' + '<span class="cropper-center"></span>' + '<span class="cropper-face"></span>' + '<span class="cropper-line line-e" data-cropper-action="e"></span>' + '<span class="cropper-line line-n" data-cropper-action="n"></span>' + '<span class="cropper-line line-w" data-cropper-action="w"></span>' + '<span class="cropper-line line-s" data-cropper-action="s"></span>' + '<span class="cropper-point point-e" data-cropper-action="e"></span>' + '<span class="cropper-point point-n" data-cropper-action="n"></span>' + '<span class="cropper-point point-w" data-cropper-action="w"></span>' + '<span class="cropper-point point-s" data-cropper-action="s"></span>' + '<span class="cropper-point point-ne" data-cropper-action="ne"></span>' + '<span class="cropper-point point-nw" data-cropper-action="nw"></span>' + '<span class="cropper-point point-sw" data-cropper-action="sw"></span>' + '<span class="cropper-point point-se" data-cropper-action="se"></span>' + '</div>' + '</div>';
+var TEMPLATE = '<div class="cropper-container" touch-action="none">' + '<div class="cropper-wrap-box">' + '<div class="cropper-canvas"></div>' + '</div>' + '<div class="cropper-drag-box"></div>' + '<div class="cropper-crop-box">' + '<span class="cropper-view-box"></span>' + '<span class="cropper-panels"></span>' + '<span class="cropper-dashed dashed-v"></span>' + '<span class="cropper-dashed dashed-h"></span>' + '<span class="cropper-center"></span>' + '<span class="cropper-face"></span>' + '<span class="cropper-line line-e" data-cropper-action="e"></span>' + '<span class="cropper-line line-n" data-cropper-action="n"></span>' + '<span class="cropper-line line-w" data-cropper-action="w"></span>' + '<span class="cropper-line line-s" data-cropper-action="s"></span>' + '<span class="cropper-point point-e" data-cropper-action="e"></span>' + '<span class="cropper-point point-n" data-cropper-action="n"></span>' + '<span class="cropper-point point-w" data-cropper-action="w"></span>' + '<span class="cropper-point point-s" data-cropper-action="s"></span>' + '<span class="cropper-point point-ne" data-cropper-action="ne"></span>' + '<span class="cropper-point point-nw" data-cropper-action="nw"></span>' + '<span class="cropper-point point-sw" data-cropper-action="sw"></span>' + '<span class="cropper-point point-se" data-cropper-action="se"></span>' + '</div>' + '</div>';
 
 /**
  * Check if the given value is not a number.
@@ -1213,17 +1217,21 @@ var render = {
     if (this.cropped) {
       this.renderCropBox();
     }
+
+    this.renderPanels();
   },
   initContainer: function initContainer() {
     var element = this.element,
         options = this.options,
         container = this.container,
         cropper = this.cropper;
+    var minWidth = Number(options.minContainerWidth);
+    var minHeight = Number(options.minContainerHeight);
     addClass(cropper, CLASS_HIDDEN);
     removeClass(element, CLASS_HIDDEN);
     var containerData = {
-      width: Math.max(container.offsetWidth, Number(options.minContainerWidth) || 200),
-      height: Math.max(container.offsetHeight, Number(options.minContainerHeight) || 100)
+      width: Math.max(container.offsetWidth, minWidth >= 0 ? minWidth : MIN_CONTAINER_WIDTH),
+      height: Math.max(container.offsetHeight, minHeight >= 0 ? minHeight : MIN_CONTAINER_HEIGHT)
     };
     this.containerData = containerData;
     setStyle(cropper, {
@@ -1271,7 +1279,6 @@ var render = {
     this.canvasData = canvasData;
     this.limited = viewMode === 1 || viewMode === 2;
     this.limitCanvas(true, true);
-    this.initialImageData = assign({}, imageData);
     this.initialCanvasData = assign({}, canvasData);
   },
   limitCanvas: function limitCanvas(sizeLimited, positionLimited) {
@@ -1570,6 +1577,44 @@ var render = {
 
     if (!this.disabled) {
       this.output();
+    }
+  },
+  renderPanels: function renderPanels() {
+    var panels = this.panels,
+        panelSpacing = this.panelSpacing,
+        panelContainer = this.panelContainer,
+        border = this.border,
+        borderColor = this.borderColor;
+    panelContainer.innerHTML = '';
+    var panelsWidth = panels.reduce(function (a, b) {
+      return a + b;
+    }, 0);
+    var spacersWidth = panelSpacing.reduce(function (a, b) {
+      return a + b;
+    }, 0);
+    var totalWidth = panelsWidth + spacersWidth;
+    console.log("Total width", totalWidth);
+
+    for (var i = 0; i < panels.length; i += 1) {
+      var panelWidth = panels[i] / totalWidth * 100;
+      var panel = document.createElement('SPAN');
+      panel.className = 'cropper-panel';
+      panel.style.width = "".concat(panelWidth, "%");
+
+      if (border > 0) {
+        var borderWidth = border / totalWidth * 100;
+        panel.style.border = "".concat(borderWidth, "px solid ").concat(borderColor);
+      }
+
+      panelContainer.appendChild(panel);
+
+      if (i < panels.length - 1) {
+        var spaceWidth = (panelSpacing[i] || 0) / totalWidth * 100;
+        var spacer = document.createElement('SPAN');
+        spacer.className = 'cropper-panel-spacer';
+        spacer.style.width = "".concat(spaceWidth, "%");
+        panelContainer.appendChild(spacer);
+      }
     }
   },
   output: function output() {
@@ -2815,6 +2860,10 @@ var methods = {
       data.scaleY = imageData.scaleY || 1;
     }
 
+    data.panels = this.panels;
+    data.panelSpacing = this.panelSpacing;
+    data.border = this.border;
+    data.borderColor = this.borderColor;
     return data;
   },
 
@@ -2874,6 +2923,14 @@ var methods = {
       }
 
       this.setCropBoxData(cropBoxData);
+
+      if (data.panels) {
+        this.panels = data.panels;
+        this.panelSpacing = data.panelSpacing;
+        this.border = data.border;
+        this.borderColor = data.borderColor;
+        this.renderPanels();
+      }
     }
 
     return this;
@@ -3192,6 +3249,46 @@ var methods = {
     }
 
     return this;
+  },
+
+  /**
+   * Change the number of panels
+   *
+   * @param {array<int>} panels
+   * @param {array<int>} spacing
+   */
+  setPanels: function setPanels(panels, spacing) {
+    this.panels = panels;
+
+    if (typeof spacing !== 'undefined') {
+      this.panelSpacing = spacing;
+    }
+
+    this.renderPanels();
+  },
+
+  /**
+   * Change the spacing between the panels
+   *
+   * @param {array<int>} spacing
+   */
+  setPanelSpacing: function setPanelSpacing(spacing) {
+    this.panelSpacing = spacing;
+    this.renderPanels();
+  },
+
+  /**
+   * @param {int} width
+   * @param {string} color
+   */
+  setBorder: function setBorder(width, color) {
+    this.border = width;
+
+    if (typeof color !== 'undefined') {
+      this.borderColor = color;
+    }
+
+    this.renderPanels();
   }
 };
 
@@ -3222,6 +3319,10 @@ var Cropper = /*#__PURE__*/function () {
     this.replaced = false;
     this.sized = false;
     this.sizing = false;
+    this.panels = [1];
+    this.panelSpacing = [];
+    this.border = 0;
+    this.borderColor = '#fff';
     this.init();
   }
 
@@ -3420,6 +3521,7 @@ var Cropper = /*#__PURE__*/function () {
           naturalHeight: naturalHeight,
           aspectRatio: naturalWidth / naturalHeight
         });
+        _this2.initialImageData = assign({}, _this2.imageData);
         _this2.sizing = false;
         _this2.sized = true;
 
@@ -3468,6 +3570,7 @@ var Cropper = /*#__PURE__*/function () {
         return;
       }
 
+      console.log("Building");
       var element = this.element,
           options = this.options,
           image = this.image; // Create cropper elements
@@ -3480,6 +3583,7 @@ var Cropper = /*#__PURE__*/function () {
       var dragBox = cropper.querySelector(".".concat(NAMESPACE, "-drag-box"));
       var cropBox = cropper.querySelector(".".concat(NAMESPACE, "-crop-box"));
       var face = cropBox.querySelector(".".concat(NAMESPACE, "-face"));
+      var panelContainer = cropBox.querySelector(".".concat(NAMESPACE, "-panels"));
       this.container = container;
       this.cropper = cropper;
       this.canvas = canvas;
@@ -3487,6 +3591,7 @@ var Cropper = /*#__PURE__*/function () {
       this.cropBox = cropBox;
       this.viewBox = cropper.querySelector(".".concat(NAMESPACE, "-view-box"));
       this.face = face;
+      this.panelContainer = panelContainer;
       canvas.appendChild(image); // Hide the original image
 
       addClass(element, CLASS_HIDDEN); // Inserts the cropper after to the current image

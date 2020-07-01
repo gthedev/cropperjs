@@ -61,6 +61,10 @@ class Cropper {
     this.replaced = false;
     this.sized = false;
     this.sizing = false;
+    this.panels = [1];
+    this.panelSpacing = [];
+    this.border = 0;
+    this.borderColor = '#fff';
     this.init();
   }
 
@@ -321,6 +325,7 @@ class Cropper {
     const dragBox = cropper.querySelector(`.${NAMESPACE}-drag-box`);
     const cropBox = cropper.querySelector(`.${NAMESPACE}-crop-box`);
     const face = cropBox.querySelector(`.${NAMESPACE}-face`);
+    const panelContainer = cropBox.querySelector(`.${NAMESPACE}-panels`);
 
     this.container = container;
     this.cropper = cropper;
@@ -329,6 +334,7 @@ class Cropper {
     this.cropBox = cropBox;
     this.viewBox = cropper.querySelector(`.${NAMESPACE}-view-box`);
     this.face = face;
+    this.panelContainer = panelContainer;
 
     canvas.appendChild(image);
 
