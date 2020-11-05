@@ -5,7 +5,7 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2020-07-01T18:27:00.290Z
+ * Date: 2020-11-05T15:42:55.835Z
  */
 
 function _typeof(obj) {
@@ -1591,7 +1591,6 @@ var render = {
       return a + b;
     }, 0);
     var totalWidth = panelsWidth + spacersWidth;
-    console.log("Total width", totalWidth);
 
     for (var i = 0; i < panels.length; i += 1) {
       var panelWidth = panels[i] / totalWidth * 100;
@@ -3568,7 +3567,6 @@ var Cropper = /*#__PURE__*/function () {
         return;
       }
 
-      console.log("Building");
       var element = this.element,
           options = this.options,
           image = this.image; // Create cropper elements
